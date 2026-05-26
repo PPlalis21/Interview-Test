@@ -1,0 +1,49 @@
+<p><a routerLink="/users">&larr; Back to Users</a></p>
+<h1>User Detail</h1>
+
+@if (user(); as u) {
+  <div style="background:#f7f7f7; border:1px solid #e1e1e1; border-radius:6px; padding:1rem 1.25rem; margin-bottom:1.25rem;">
+    <h2 style="margin:0 0 .75rem;">{{ u.firstName }} {{ u.lastName }}</h2>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:.5rem 1.25rem;">
+      <div><strong>ID:</strong> {{ u.id }}</div>
+      <div><strong>UserId:</strong> {{ u.userId }}</div>
+      <div><strong>Username:</strong> {{ u.username }}</div>
+      <div><strong>Age:</strong> {{ u.age ?? 'N/A' }}</div>
+    </div>
+  </div>
+
+  <h3>Roles ({{ u.roles.length }})</h3>
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Role ID</th><th>Role Name</th></tr>
+    </thead>
+    <tbody>
+      @for (r of u.roles; track r.roleId; let i = $index) {
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ r.roleId }}</td>
+          <td>{{ r.roleName }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:1.25rem;">Permissions ({{ u.permissions.length }})</h3>
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Permission</th></tr>
+    </thead>
+    <tbody>
+      @for (p of u.permissions; track p; let i = $index) {
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ p }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else if (loading()) {
+  <p>Loading...</p>
+} @else if (error()) {
+  <p style="color:#c00;">{{ error() }}</p>
+}

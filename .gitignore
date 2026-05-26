@@ -1,0 +1,55 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dll
+*.pdb
+*.exe
+*.cache
+*.tlog
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio
+.vs/
+.vscode/
+*.vcxproj.filters
+*.opensdf
+*.sdf
+*.unsuccessfulbuild
+*.ipdb
+*.iobj
+
+# Rider
+.idea/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Certs & secrets
+certs/
+*.pfx
+*.key
+*.crt
+*.pem
+appsettings.local.json
+*.env
+
+# Misc
+*.log
+*.crproj
