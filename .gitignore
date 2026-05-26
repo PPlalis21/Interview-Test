@@ -27,6 +27,10 @@ artifacts/
 # Rider
 .idea/
 
+# Claude
+.claude/
+CLAUDE.md
+
 # Node / Angular
 node_modules/
 dist/
