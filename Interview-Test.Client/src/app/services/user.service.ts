@@ -5,7 +5,7 @@ import { UserDetail, UserListItem } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly baseUrl = 'http://localhost:44375/gateway/user';
+  private readonly baseUrl = 'https://localhost:44375/gateway/user';
 
   constructor(private http: HttpClient) {}
 
