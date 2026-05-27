@@ -2,6 +2,7 @@ using Interview_Test.Common;
 using Interview_Test.Dtos;
 using Interview_Test.Models;
 using Interview_Test.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace Interview_Test.Services;
 
@@ -22,7 +23,12 @@ public class UserService
         {
             var userRepo = _unitOfWork.AsyncRepository<UserModel>();
 
-            var users = await userRepo.ListByPathAsync(x => true, "UserRoles.Role.RolePermissions.Permission");
+            var users = await userRepo.Query()
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.RolePermissions)
+                            .ThenInclude(rp => rp.Permission)
+                .ToListAsync();
 
             var result = (from u in users
                           orderby u.UserId ascending
@@ -64,31 +70,34 @@ public class UserService
 
             var userRepo = _unitOfWork.AsyncRepository<UserModel>();
 
-            var users = await userRepo.ListByPathAsync(x => x.Id == guid || x.UserId == id,
-                                                       "UserRoles.Role.RolePermissions.Permission");
+            var user = await userRepo.Query()
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.RolePermissions)
+                            .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(x => x.Id == guid || x.UserId == id);
 
-            var result = (from u in users
-                          select new UserDetailDto
-                          {
-                              id = u.Id,
-                              userId = u.UserId,
-                              username = u.Username,
-                              firstName = u.FirstName,
-                              lastName = u.LastName,
-                              age = u.Age,
-                              roles = (from ur in u.UserRoles
-                                       orderby ur.Role.RoleId
-                                       select new RoleDto
-                                       {
-                                           roleId = ur.Role.RoleId,
-                                           roleName = ur.Role.RoleName
-                                       }).ToList(),
-                              permissions = u.UserRoles
-                                             .SelectMany(ur => ur.Role.RolePermissions.Select(rp => rp.Permission.Permission))
-                                             .Distinct()
-                                             .OrderBy(p => p)
-                                             .ToList()
-                          }).FirstOrDefault();
+            var result = user == null ? null : new UserDetailDto
+            {
+                id = user.Id,
+                userId = user.UserId,
+                username = user.Username,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                age = user.Age,
+                roles = (from ur in user.UserRoles
+                         orderby ur.Role.RoleId
+                         select new RoleDto
+                         {
+                             roleId = ur.Role.RoleId,
+                             roleName = ur.Role.RoleName
+                         }).ToList(),
+                permissions = user.UserRoles
+                                  .SelectMany(ur => ur.Role.RolePermissions.Select(rp => rp.Permission.Permission))
+                                  .Distinct()
+                                  .OrderBy(p => p)
+                                  .ToList()
+            };
 
             response.Data = result;
             response.Success = result != null;

@@ -22,7 +22,7 @@ public class RoleService
         {
             var roleRepo = _unitOfWork.AsyncRepository<RoleModel>();
 
-            var roles = await roleRepo.ListAsync(x => true);
+            var roles = await roleRepo.ListAllAsync();
 
             var result = (from r in roles
                           orderby r.RoleId ascending

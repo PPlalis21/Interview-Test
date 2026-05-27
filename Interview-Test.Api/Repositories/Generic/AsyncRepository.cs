@@ -17,6 +17,13 @@ public class AsyncRepository<T> : IAsyncRepository<T> where T : class
 
     public IQueryable<T> Query() => _set.AsQueryable();
 
+    public async Task<List<T>> ListAllAsync(params Expression<Func<T, object>>[] includes)
+    {
+        IQueryable<T> q = _set;
+        foreach (var inc in includes) q = q.Include(inc);
+        return await q.ToListAsync();
+    }
+
     public async Task<List<T>> ListAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {
         IQueryable<T> q = _set;
@@ -28,20 +35,6 @@ public class AsyncRepository<T> : IAsyncRepository<T> where T : class
     {
         IQueryable<T> q = _set;
         foreach (var inc in includes) q = q.Include(inc);
-        return await q.FirstOrDefaultAsync(predicate);
-    }
-
-    public async Task<List<T>> ListByPathAsync(Expression<Func<T, bool>> predicate, params string[] paths)
-    {
-        IQueryable<T> q = _set;
-        foreach (var p in paths) q = q.Include(p);
-        return await q.Where(predicate).ToListAsync();
-    }
-
-    public async Task<T?> FirstOrDefaultByPathAsync(Expression<Func<T, bool>> predicate, params string[] paths)
-    {
-        IQueryable<T> q = _set;
-        foreach (var p in paths) q = q.Include(p);
         return await q.FirstOrDefaultAsync(predicate);
     }
 
