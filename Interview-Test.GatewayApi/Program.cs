@@ -1,14 +1,17 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
+// API Gateway (Ocelot) — forward /gateway/* → backend API
 var builder = WebApplication.CreateBuilder(args);
 
+// โหลด route config
 builder.Configuration.AddJsonFile("configurationOcelot.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOcelot(builder.Configuration);
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>

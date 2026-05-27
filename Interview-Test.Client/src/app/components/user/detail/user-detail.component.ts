@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { UserDetail } from '../../../models/user.model';
 
+// หน้า user detail (อ่าน id จาก URL)
 @Component({
   standalone: true,
   selector: 'app-user-detail',

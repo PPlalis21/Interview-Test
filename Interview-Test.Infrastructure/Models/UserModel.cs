@@ -1,23 +1,32 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Interview_Test.Models;
 
-[Table("UserTb")]
+[Table("Users")]
 public class UserModel
 {
     [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
+
     [Required]
     [Column(TypeName = "varchar(20)")]
     public string UserId { get; set; }
+
     [Required]
     [Column(TypeName = "varchar(100)")]
     public string Username { get; set; }
+
     [Required]
-    [DeleteBehavior(DeleteBehavior.Cascade)]
-    public UserProfileModel UserProfile { get; set; }
+    [Column(TypeName = "varchar(100)")]
+    public string FirstName { get; set; }
+
     [Required]
-    public ICollection<UserRoleMappingModel> UserRoleMappings { get; set; }
+    [Column(TypeName = "varchar(100)")]
+    public string LastName { get; set; }
+
+    public int? Age { get; set; }
+
+    // → UserRoles (many-to-many กับ Role)
+    public ICollection<UserRoleModel> UserRoles { get; set; }
 }

@@ -10,51 +10,57 @@ public class InterviewTestDbContext : DbContext
     {
     }
 
-    public DbSet<UserModel> UserTb { get; set; }
-    public DbSet<UserProfileModel> UserProfileTb { get; set; }
-    public DbSet<RoleModel> RoleTb { get; set; }
-    public DbSet<UserRoleMappingModel> UserRoleMappingTb { get; set; }
-    public DbSet<PermissionModel> PermissionTb { get; set; }
+    // 5 ตาราง: 3 master + 2 junction
+    public DbSet<UserModel> Users { get; set; }
+    public DbSet<RoleModel> Roles { get; set; }
+    public DbSet<PermissionModel> Permissions { get; set; }
+    public DbSet<UserRoleModel> UserRoles { get; set; }
+    public DbSet<RolePermissionModel> RolePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<UserModel>(entity =>
+        // User ↔ Role (many-to-many)
+        modelBuilder.Entity<UserRoleModel>(entity =>
         {
-            entity.HasOne(u => u.UserProfile)
-                  .WithOne(p => p.User)
-                  .HasForeignKey<UserProfileModel>("UserId")
-                  .HasPrincipalKey<UserModel>(u => u.Id)
+            entity.HasIndex(ur => new { ur.UserId, ur.RoleId }).IsUnique();
+
+            entity.HasOne(ur => ur.User)
+                  .WithMany(u => u.UserRoles)
+                  .HasForeignKey(ur => ur.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ur => ur.Role)
+                  .WithMany(r => r.UserRoles)
+                  .HasForeignKey(ur => ur.RoleId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<UserRoleMappingModel>(entity =>
+        // Role ↔ Permission (many-to-many)
+        modelBuilder.Entity<RolePermissionModel>(entity =>
         {
-            entity.HasOne(urm => urm.User)
-                  .WithMany(u => u.UserRoleMappings)
-                  .HasForeignKey("UserId")
-                  .HasPrincipalKey(u => u.Id)
+            entity.HasIndex(rp => new { rp.RoleId, rp.PermissionId }).IsUnique();
+
+            entity.HasOne(rp => rp.Role)
+                  .WithMany(r => r.RolePermissions)
+                  .HasForeignKey(rp => rp.RoleId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(urm => urm.Role)
-                  .WithMany(r => r.UserRoleMappings)
-                  .HasForeignKey("RoleId")
-                  .HasPrincipalKey(r => r.RoleId)
+            entity.HasOne(rp => rp.Permission)
+                  .WithMany(p => p.RolePermissions)
+                  .HasForeignKey(rp => rp.PermissionId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<RoleModel>(entity =>
-        {
-            entity.HasMany(r => r.Permissions)
-                  .WithOne(p => p.Role)
-                  .HasForeignKey("RoleId")
-                  .HasPrincipalKey(r => r.RoleId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
+        // unique permission ใน master
+        modelBuilder.Entity<PermissionModel>()
+                    .HasIndex(p => p.Permission)
+                    .IsUnique();
     }
 }
 
+// design-time factory (ใช้ตอน dotnet ef migrations เท่านั้น)
 public class InterviewTestDbContextDesignFactory : IDesignTimeDbContextFactory<InterviewTestDbContext>
 {
     public InterviewTestDbContext CreateDbContext(string[] args)

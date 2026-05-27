@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { UserListItem } from '../../../models/user.model';
 
+// หน้า users list + search
 @Component({
   standalone: true,
   selector: 'app-users-list',
@@ -12,11 +13,13 @@ import { UserListItem } from '../../../models/user.model';
   templateUrl: './users-list.component.html',
 })
 export class UsersListComponent implements OnInit {
+  // state (signals)
   users = signal<UserListItem[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
   search = signal('');
 
+  // filter ตามคำค้น
   filtered = computed(() => {
     const term = this.search().trim().toLowerCase();
     if (!term) return this.users();

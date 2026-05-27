@@ -1,3 +1,4 @@
+// bootstrap Angular app (standalone)
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -7,6 +8,7 @@ import { apiKeyInterceptor } from './app/interceptors/api-key.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
+    // HttpClient + แทรก x-api-key ทุก request
     provideHttpClient(withInterceptors([apiKeyInterceptor])),
     provideRouter(routes)
   ]

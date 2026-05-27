@@ -34,14 +34,12 @@ namespace Interview_Test.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.HasKey("PermissionId");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("Permission")
+                        .IsUnique();
 
-                    b.ToTable("PermissionTb");
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("Interview_Test.Models.RoleModel", b =>
@@ -58,31 +56,34 @@ namespace Interview_Test.Infrastructure.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("RoleTb");
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Interview_Test.Models.RolePermissionModel", b =>
+                {
+                    b.Property<Guid>("RolePermissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("PermissionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolePermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId", "PermissionId")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Interview_Test.Models.UserModel", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserTb");
-                });
-
-            modelBuilder.Entity("Interview_Test.Models.UserProfileModel", b =>
-                {
-                    b.Property<Guid>("ProfileId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -97,20 +98,22 @@ namespace Interview_Test.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
 
-                    b.HasKey("ProfileId");
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasKey("Id");
 
-                    b.ToTable("UserProfileTb");
+                    b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Interview_Test.Models.UserRoleMappingModel", b =>
+            modelBuilder.Entity("Interview_Test.Models.UserRoleModel", b =>
                 {
-                    b.Property<Guid>("UserRoleMappingId")
+                    b.Property<Guid>("UserRoleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -120,47 +123,45 @@ namespace Interview_Test.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserRoleMappingId");
+                    b.HasKey("UserRoleId");
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique();
 
-                    b.ToTable("UserRoleMappingTb");
+                    b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("Interview_Test.Models.PermissionModel", b =>
+            modelBuilder.Entity("Interview_Test.Models.RolePermissionModel", b =>
                 {
+                    b.HasOne("Interview_Test.Models.PermissionModel", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Interview_Test.Models.RoleModel", "Role")
-                        .WithMany("Permissions")
+                        .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Permission");
 
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Interview_Test.Models.UserProfileModel", b =>
-                {
-                    b.HasOne("Interview_Test.Models.UserModel", "User")
-                        .WithOne("UserProfile")
-                        .HasForeignKey("Interview_Test.Models.UserProfileModel", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Interview_Test.Models.UserRoleMappingModel", b =>
+            modelBuilder.Entity("Interview_Test.Models.UserRoleModel", b =>
                 {
                     b.HasOne("Interview_Test.Models.RoleModel", "Role")
-                        .WithMany("UserRoleMappings")
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Interview_Test.Models.UserModel", "User")
-                        .WithMany("UserRoleMappings")
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -170,19 +171,21 @@ namespace Interview_Test.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Interview_Test.Models.PermissionModel", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("Interview_Test.Models.RoleModel", b =>
                 {
-                    b.Navigation("Permissions");
+                    b.Navigation("RolePermissions");
 
-                    b.Navigation("UserRoleMappings");
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Interview_Test.Models.UserModel", b =>
                 {
-                    b.Navigation("UserProfile")
-                        .IsRequired();
-
-                    b.Navigation("UserRoleMappings");
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

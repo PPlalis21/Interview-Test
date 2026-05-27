@@ -1,4 +1,4 @@
-﻿using Interview_Test.Models;
+using Interview_Test.Models;
 
 namespace Interview_Test.Repositories.Interfaces;
 

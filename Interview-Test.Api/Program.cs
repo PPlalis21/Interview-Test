@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
@@ -15,9 +16,11 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// connection string
 var connection = builder.Configuration.GetConnectionString("DefaultConnection")
                  ?? "Server=localhost,1433;Database=InterviewTestDb;User=sa;Password=@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true";
 
+// DbContext + retry
 builder.Services.AddDbContext<InterviewTestDbContext>(options =>
 {
     options.UseSqlServer(connection, sqlOptions =>
@@ -28,9 +31,12 @@ builder.Services.AddDbContext<InterviewTestDbContext>(options =>
     });
 });
 
+// DI
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddTransient<AuthenMiddleware>();
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -39,12 +45,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Swagger (dev only)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// auto migrate + seed (retry รอ SQL Server พร้อม)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<InterviewTestDbContext>();
@@ -69,6 +77,7 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Seed(db);
 }
 
+// pipeline: CORS → ตรวจ api key → routing
 app.UseCors();
 app.UseMiddleware<AuthenMiddleware>();
 app.UseMvc();

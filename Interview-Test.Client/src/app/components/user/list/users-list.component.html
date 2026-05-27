@@ -1,12 +1,16 @@
 <h1>Users</h1>
 
-<div style="margin: 1rem 0;">
+<div style="margin: 1rem 0; display:flex; gap:.75rem; align-items:center;">
   <input
     type="search"
     placeholder="Search by id, userId, username, name"
     [ngModel]="search()"
     (ngModelChange)="onSearch($event)"
     style="width: 360px;" />
+  <a routerLink="/users/create"
+     style="padding:.5rem .9rem; background:#0c4a6e; color:white; border-radius:4px; text-decoration:none;">
+    + Create User
+  </a>
 </div>
 
 @if (loading()) {

@@ -1,0 +1,73 @@
+<h1>Create User</h1>
+
+<p><a routerLink="/users">&larr; Back to list</a></p>
+
+<form (submit)="$event.preventDefault(); submit()" style="max-width: 480px;">
+  <div style="display:flex; flex-direction:column; gap:.75rem;">
+
+    <label>
+      <div>UserId <span style="color:#c00;">*</span></div>
+      <input type="text" [ngModel]="userId()" (ngModelChange)="userId.set($event)"
+             name="userId" required style="width:100%;" />
+    </label>
+
+    <label>
+      <div>Username <span style="color:#c00;">*</span></div>
+      <input type="text" [ngModel]="username()" (ngModelChange)="username.set($event)"
+             name="username" required style="width:100%;" />
+    </label>
+
+    <label>
+      <div>First Name <span style="color:#c00;">*</span></div>
+      <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)"
+             name="firstName" required style="width:100%;" />
+    </label>
+
+    <label>
+      <div>Last Name <span style="color:#c00;">*</span></div>
+      <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)"
+             name="lastName" required style="width:100%;" />
+    </label>
+
+    <label>
+      <div>Age</div>
+      <input type="number" [ngModel]="age()" (ngModelChange)="age.set($event === null || $event === '' ? null : +$event)"
+             name="age" min="0" style="width:100%;" />
+    </label>
+
+    <fieldset style="border:1px solid #ddd; padding:.5rem .75rem;">
+      <legend>Roles <span style="color:#c00;">*</span></legend>
+      @if (rolesLoading()) {
+        <p style="margin:0;">Loading roles...</p>
+      } @else if (rolesError()) {
+        <p style="color:#c00; margin:0;">{{ rolesError() }}</p>
+      } @else {
+        @for (r of roleOptions(); track r.roleId) {
+          <label style="display:block; padding:.2rem 0;">
+            <input type="checkbox"
+                   [checked]="isRoleSelected(r.roleId)"
+                   (change)="toggleRole(r.roleId, $any($event.target).checked)" />
+            {{ r.roleId }} - {{ r.roleName }}
+          </label>
+        } @empty {
+          <p style="margin:0;">ไม่มี role ในระบบ</p>
+        }
+      }
+    </fieldset>
+
+    @if (error()) {
+      <p style="color:#c00; margin:0;">{{ error() }}</p>
+    }
+
+    <div style="display:flex; gap:.5rem;">
+      <button type="submit" [disabled]="submitting()"
+              style="padding:.5rem 1rem; background:#0c4a6e; color:white; border:none; border-radius:4px; cursor:pointer;">
+        {{ submitting() ? 'Saving...' : 'Create' }}
+      </button>
+      <a routerLink="/users"
+         style="padding:.5rem 1rem; border:1px solid #ccc; border-radius:4px; text-decoration:none; color:#333;">
+        Cancel
+      </a>
+    </div>
+  </div>
+</form>

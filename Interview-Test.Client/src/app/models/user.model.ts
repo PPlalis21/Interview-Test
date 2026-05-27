@@ -1,3 +1,4 @@
+// list page
 export interface UserListItem {
   id: string;
   userId: string;
@@ -14,6 +15,7 @@ export interface UserRole {
   roleName: string;
 }
 
+// detail page
 export interface UserDetail {
   id: string;
   userId: string;
@@ -23,4 +25,14 @@ export interface UserDetail {
   age: number | null;
   roles: UserRole[];
   permissions: string[];
+}
+
+// payload สำหรับ POST /CreateUser
+export interface CreateUserPayload {
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  age: number | null;
+  userRoles: { role: { roleId: number } }[];
 }

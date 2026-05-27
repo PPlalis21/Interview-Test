@@ -11,12 +11,14 @@ public class UserController : ControllerBase
     private readonly IUserRepository _userRepository;
     private readonly ILogger<UserController> _logger;
 
+    // DI
     public UserController(IUserRepository userRepository, ILogger<UserController> logger)
     {
         _userRepository = userRepository;
         _logger = logger;
     }
 
+    // GET /api/user/GetUsers
     [HttpGet("GetUsers")]
     public ActionResult GetUsers()
     {
@@ -31,6 +33,7 @@ public class UserController : ControllerBase
         }
     }
 
+    // GET /api/user/GetUserById/{id}
     [HttpGet("GetUserById/{id}")]
     public ActionResult GetUserById(string id)
     {
@@ -50,6 +53,7 @@ public class UserController : ControllerBase
         }
     }
 
+    // POST /api/user/CreateUser
     [HttpPost("CreateUser")]
     public ActionResult CreateUser(UserModel user)
     {

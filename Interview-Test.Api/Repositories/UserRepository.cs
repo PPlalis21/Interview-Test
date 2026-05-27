@@ -14,29 +14,34 @@ public class UserRepository : IUserRepository
         _db = db;
     }
 
+    // หา user ด้วย Guid หรือ UserId
     public dynamic GetUserById(string id)
     {
         Guid.TryParse(id, out var guid);
-        var result = (from u in _db.UserTb
+
+        var result = (from u in _db.Users
                       where u.Id == guid || u.UserId == id
                       select new
                       {
                           id = u.Id,
                           userId = u.UserId,
                           username = u.Username,
-                          firstName = u.UserProfile.FirstName,
-                          lastName = u.UserProfile.LastName,
-                          age = u.UserProfile.Age,
-                          roles = u.UserRoleMappings
-                                   .OrderBy(urm => urm.Role.RoleId)
-                                   .Select(urm => new
+                          firstName = u.FirstName,
+                          lastName = u.LastName,
+                          age = u.Age,
+                          // roles ของ user
+                          roles = u.UserRoles
+                                   .OrderBy(ur => ur.Role.RoleId)
+                                   .Select(ur => new
                                    {
-                                       roleId = urm.Role.RoleId,
-                                       roleName = urm.Role.RoleName
+                                       roleId = ur.Role.RoleId,
+                                       roleName = ur.Role.RoleName
                                    })
                                    .ToList(),
-                          permissions = u.UserRoleMappings
-                                         .SelectMany(urm => urm.Role.Permissions.Select(p => p.Permission))
+                          // permissions รวมจากทุก role + distinct
+                          permissions = u.UserRoles
+                                         .SelectMany(ur => ur.Role.RolePermissions
+                                                                  .Select(rp => rp.Permission.Permission))
                                          .Distinct()
                                          .OrderBy(p => p)
                                          .ToList()
@@ -46,41 +51,45 @@ public class UserRepository : IUserRepository
         return result!;
     }
 
+    // insert user + role mappings
     public int CreateUser(UserModel user)
     {
-        if (user.UserRoleMappings != null)
+        // ผูก Role ที่มีอยู่แล้วใน DB กัน EF insert ซ้ำ
+        if (user.UserRoles != null)
         {
-            foreach (var mapping in user.UserRoleMappings)
+            foreach (var ur in user.UserRoles)
             {
-                if (mapping.Role != null && mapping.Role.RoleId > 0)
+                if (ur.Role != null && ur.Role.RoleId > 0)
                 {
-                    var existing = _db.RoleTb.Find(mapping.Role.RoleId);
+                    var existing = _db.Roles.Find(ur.Role.RoleId);
                     if (existing != null)
                     {
-                        mapping.Role = existing;
+                        ur.Role = existing;
                     }
                 }
             }
         }
-        _db.UserTb.Add(user);
+        _db.Users.Add(user);
         return _db.SaveChanges();
     }
 
+    // list สำหรับหน้า users — ส่ง count แทนข้อมูลเต็ม
     public dynamic GetUsers()
     {
-        var result = (from u in _db.UserTb
+        var result = (from u in _db.Users
                       orderby u.UserId
                       select new
                       {
                           id = u.Id,
                           userId = u.UserId,
                           username = u.Username,
-                          firstName = u.UserProfile.FirstName,
-                          lastName = u.UserProfile.LastName,
-                          age = u.UserProfile.Age,
-                          rolesCount = u.UserRoleMappings.Count(),
-                          permissionsCount = u.UserRoleMappings
-                              .SelectMany(urm => urm.Role.Permissions.Select(p => p.Permission))
+                          firstName = u.FirstName,
+                          lastName = u.LastName,
+                          age = u.Age,
+                          rolesCount = u.UserRoles.Count(),
+                          permissionsCount = u.UserRoles
+                              .SelectMany(ur => ur.Role.RolePermissions
+                                                       .Select(rp => rp.Permission.Permission))
                               .Distinct().Count()
                       }).ToList();
         return result;
