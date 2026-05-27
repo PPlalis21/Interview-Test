@@ -1,7 +1,7 @@
 using Interview_Test.Infrastructure;
 using Interview_Test.Middlewares;
-using Interview_Test.Repositories;
-using Interview_Test.Repositories.Interfaces;
+using Interview_Test.Services;
+using Interview_Test.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,8 +32,9 @@ builder.Services.AddDbContext<InterviewTestDbContext>(options =>
 });
 
 // DI
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<RoleService>();
 builder.Services.AddTransient<AuthenMiddleware>();
 
 // CORS

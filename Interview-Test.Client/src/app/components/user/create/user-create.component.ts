@@ -89,12 +89,18 @@ export class UserCreateComponent implements OnInit {
     this.error.set(null);
     this.submitting.set(true);
     this.userService.createUser(payload).subscribe({
-      next: () => {
-        this.router.navigate(['/users']);
+      next: res => {
+        // backend คืน 200 พร้อม success=false ถ้า UserId ซ้ำ → แสดง message จาก backend
+        if (res.success) {
+          this.router.navigate(['/users']);
+        } else {
+          this.error.set(res.message || 'สร้าง user ไม่สำเร็จ');
+          this.submitting.set(false);
+        }
       },
       error: err => {
         console.error(err);
-        this.error.set('สร้าง user ไม่สำเร็จ (อาจชื่อซ้ำหรือข้อมูลไม่ถูกต้อง)');
+        this.error.set('สร้าง user ไม่สำเร็จ (เกิดข้อผิดพลาด)');
         this.submitting.set(false);
       }
     });

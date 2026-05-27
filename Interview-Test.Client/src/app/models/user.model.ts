@@ -36,3 +36,10 @@ export interface CreateUserPayload {
   age: number | null;
   userRoles: { role: { roleId: number } }[];
 }
+
+// wrapper จาก backend (ServiceResponse<T>)
+export interface ServiceResponse<T> {
+  data: T;
+  success: boolean;
+  message: string;
+}

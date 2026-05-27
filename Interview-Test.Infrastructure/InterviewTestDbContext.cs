@@ -57,6 +57,11 @@ public class InterviewTestDbContext : DbContext
         modelBuilder.Entity<PermissionModel>()
                     .HasIndex(p => p.Permission)
                     .IsUnique();
+
+        // unique UserId — กันสร้าง user ซ้ำ
+        modelBuilder.Entity<UserModel>()
+                    .HasIndex(u => u.UserId)
+                    .IsUnique();
     }
 }
 

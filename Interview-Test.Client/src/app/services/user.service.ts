@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { CreateUserPayload, UserDetail, UserListItem } from '../models/user.model';
+import { Observable, map } from 'rxjs';
+import { CreateUserPayload, ServiceResponse, UserDetail, UserListItem } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -10,15 +10,19 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
+  // unwrap → คืนเฉพาะ data
   getUsers(): Observable<UserListItem[]> {
-    return this.http.get<UserListItem[]>(`${this.baseUrl}/GetUsers`);
+    return this.http.get<ServiceResponse<UserListItem[]>>(`${this.baseUrl}/GetUsers`)
+      .pipe(map(r => r.data ?? []));
   }
 
   getUserById(id: string): Observable<UserDetail> {
-    return this.http.get<UserDetail>(`${this.baseUrl}/GetUserById/${id}`);
+    return this.http.get<ServiceResponse<UserDetail>>(`${this.baseUrl}/GetUserById/${id}`)
+      .pipe(map(r => r.data));
   }
 
-  createUser(payload: CreateUserPayload): Observable<{ affectedRows: number }> {
-    return this.http.post<{ affectedRows: number }>(`${this.baseUrl}/CreateUser`, payload);
+  // คืน ServiceResponse ทั้งก้อน — caller ต้องเช็ก success + อ่าน message
+  createUser(payload: CreateUserPayload): Observable<ServiceResponse<number>> {
+    return this.http.post<ServiceResponse<number>>(`${this.baseUrl}/CreateUser`, payload);
   }
 }

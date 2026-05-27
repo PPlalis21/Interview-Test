@@ -1,4 +1,4 @@
-using Interview_Test.Repositories.Interfaces;
+using Interview_Test.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview_Test.Controllers;
@@ -7,27 +7,18 @@ namespace Interview_Test.Controllers;
 [Route("api/[controller]")]
 public class RoleController : ControllerBase
 {
-    private readonly IRoleRepository _roleRepository;
-    private readonly ILogger<RoleController> _logger;
+    private readonly RoleService _roleService;
 
-    public RoleController(IRoleRepository roleRepository, ILogger<RoleController> logger)
+    public RoleController(RoleService roleService)
     {
-        _roleRepository = roleRepository;
-        _logger = logger;
+        _roleService = roleService;
     }
 
     // GET /api/role/GetRoles — master data
     [HttpGet("GetRoles")]
-    public ActionResult GetRoles()
+    public async Task<IActionResult> GetRoles()
     {
-        try
-        {
-            return Ok(_roleRepository.GetRoles());
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get roles");
-            return StatusCode(500, new { message = "Failed to get roles", error = ex.Message });
-        }
+        var result = await _roleService.GetRoles();
+        return Ok(result);
     }
 }

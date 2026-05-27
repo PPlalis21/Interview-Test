@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { UserRole } from '../models/user.model';
+import { Observable, map } from 'rxjs';
+import { ServiceResponse, UserRole } from '../models/user.model';
 
 // Role master-data
 @Injectable({ providedIn: 'root' })
@@ -11,6 +11,7 @@ export class RoleService {
   constructor(private http: HttpClient) {}
 
   getRoles(): Observable<UserRole[]> {
-    return this.http.get<UserRole[]>(`${this.baseUrl}/GetRoles`);
+    return this.http.get<ServiceResponse<UserRole[]>>(`${this.baseUrl}/GetRoles`)
+      .pipe(map(r => r.data ?? []));
   }
 }
