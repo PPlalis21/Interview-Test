@@ -14,7 +14,6 @@ public class RoleController : ControllerBase
         _roleService = roleService;
     }
 
-    // GET /api/role/GetRoles — master data
     [HttpGet("GetRoles")]
     public async Task<IActionResult> GetRoles()
     {

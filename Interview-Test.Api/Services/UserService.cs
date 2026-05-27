@@ -14,7 +14,6 @@ public class UserService
         _unitOfWork = unitOfWork;
     }
 
-    // list ผู้ใช้ + count
     public async Task<ServiceResponse<List<UserListDto>>> GetUsers()
     {
         ServiceResponse<List<UserListDto>> response = new ServiceResponse<List<UserListDto>>();
@@ -55,7 +54,6 @@ public class UserService
         return response;
     }
 
-    // หา user ด้วย Guid หรือ UserId
     public async Task<ServiceResponse<UserDetailDto?>> GetUserById(string id)
     {
         ServiceResponse<UserDetailDto?> response = new ServiceResponse<UserDetailDto?>();
@@ -106,7 +104,6 @@ public class UserService
         return response;
     }
 
-    // insert user + role mappings
     public async Task<ServiceResponse<int>> CreateUser(UserModel user)
     {
         ServiceResponse<int> response = new ServiceResponse<int>();
@@ -116,7 +113,6 @@ public class UserService
             var userRepo = _unitOfWork.AsyncRepository<UserModel>();
             var roleRepo = _unitOfWork.AsyncRepository<RoleModel>();
 
-            // กัน UserId ซ้ำ — ตรวจที่ app-level ก่อนยิง DB (DB ก็มี unique index กันอีกชั้น)
             var duplicate = await userRepo.FirstOrDefaultAsync(u => u.UserId == user.UserId);
             if (duplicate != null)
             {
@@ -126,7 +122,6 @@ public class UserService
                 return response;
             }
 
-            // ผูก Role เดิมที่มีใน DB กัน EF insert ซ้ำ
             if (user.UserRoles != null)
             {
                 foreach (var ur in user.UserRoles)

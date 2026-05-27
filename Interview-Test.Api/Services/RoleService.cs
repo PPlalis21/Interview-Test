@@ -14,7 +14,6 @@ public class RoleService
         _unitOfWork = unitOfWork;
     }
 
-    // list role ทั้งหมด (master data)
     public async Task<ServiceResponse<List<RoleDto>>> GetRoles()
     {
         ServiceResponse<List<RoleDto>> response = new ServiceResponse<List<RoleDto>>();

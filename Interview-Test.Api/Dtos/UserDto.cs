@@ -1,7 +1,5 @@
 namespace Interview_Test.Dtos;
 
-// shape สำหรับ response (camelCase ตาม API contract)
-
 public class UserListDto
 {
     public Guid id { get; set; }

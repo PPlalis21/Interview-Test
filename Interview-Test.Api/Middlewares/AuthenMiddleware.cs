@@ -3,17 +3,14 @@ using System.Text;
 
 namespace Interview_Test.Middlewares;
 
-// ตรวจ x-api-key ทุก request ก่อนเข้า Controller
 public class AuthenMiddleware : IMiddleware
 {
-    // SHA512 ของ "interview-test-api-key"
     private const string hashedKey = "82e3cf278aebb17c955845668c9661005467a8132b2c8fca3dcc0d8010e2af51e23152188989340661c7ead9acc263fa73a4215ae7b6781ce6a794754c6f8a87";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var apiKeyHeader = context.Request.Headers["x-api-key"].ToString();
 
-        // ไม่มี header → 401
         if (string.IsNullOrEmpty(apiKeyHeader))
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -21,7 +18,6 @@ public class AuthenMiddleware : IMiddleware
             return;
         }
 
-        // hash แล้วเทียบกับค่าที่เก็บไว้
         var computedHash = ComputeSha512(apiKeyHeader);
         if (!string.Equals(computedHash, hashedKey, StringComparison.OrdinalIgnoreCase))
         {
@@ -33,7 +29,6 @@ public class AuthenMiddleware : IMiddleware
         await next(context);
     }
 
-    // string → SHA512 hex
     private static string ComputeSha512(string input)
     {
         using var sha512 = SHA512.Create();
